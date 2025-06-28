@@ -1205,14 +1205,15 @@
     </div>
   </section>
 
-  <!-- Contact Form Modal -->
+  <!-- Contact Form Modal - Updated for Formspree -->
   <div class="modal-overlay" id="contactModal">
     <div class="contact-modal">
       <div class="modal-header">
         <h3>Contact Us</h3>
         <button class="close-modal" id="closeModal">&times;</button>
       </div>
-      <form id="contactForm">
+      <form action="https://formspree.io/f/eleveight.hq@gmail.com" method="POST" id="contactForm">
+        <input type="hidden" name="_subject" value="New contact from ElevEight website">
         <div class="form-group">
           <label for="name">Your Name</label>
           <input type="text" id="name" name="name" required>
@@ -1551,7 +1552,7 @@
     }, { threshold: 0.1 });
     processSteps.forEach(step => observer.observe(step));
 
-    // Demo AI Responses - Fixed and Enhanced
+    // Demo AI Responses
     const demoInput = document.getElementById('demoInput');
     const demoSubmit = document.getElementById('demoSubmit');
     const aiResponseText = document.getElementById('aiResponseText');
@@ -1638,35 +1639,38 @@
       }
     });
 
-    // Form submission
+    // Form submission - Updated for Formspree
     contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const formData = new FormData(contactForm);
-      const data = Object.fromEntries(formData);
       
       try {
-        // Here you would normally send the data to your server
-        // For demonstration, we'll simulate a successful submission
+        const response = await fetch(contactForm.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
         
-        // Show success message
-        if (currentLanguage === 'en') {
-          formMessage.textContent = "Thank you! Your message has been sent. We'll contact you soon.";
+        if (response.ok) {
+          if (currentLanguage === 'en') {
+            formMessage.textContent = "Thank you! Your message has been sent. We'll contact you soon.";
+          } else {
+            formMessage.textContent = "Merci ! Votre message a été envoyé. Nous vous contacterons bientôt.";
+          }
+          formMessage.className = "form-message success";
+          formMessage.style.display = "block";
+          contactForm.reset();
+          
+          setTimeout(() => {
+            contactModal.classList.remove('active');
+            formMessage.style.display = "none";
+          }, 5000);
         } else {
-          formMessage.textContent = "Merci ! Votre message a été envoyé. Nous vous contacterons bientôt.";
+          throw new Error('Form submission failed');
         }
-        formMessage.className = "form-message success";
-        formMessage.style.display = "block";
-        
-        // Clear form
-        contactForm.reset();
-        
-        // Hide modal after 5 seconds
-        setTimeout(() => {
-          contactModal.classList.remove('active');
-          formMessage.style.display = "none";
-        }, 5000);
-        
       } catch (error) {
         if (currentLanguage === 'en') {
           formMessage.textContent = "There was an error sending your message. Please try again.";
